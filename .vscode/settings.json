@@ -1,0 +1,8 @@
+{
+    "Lua.diagnostics.disable": [
+        "unused-local",
+        "lowercase-global",
+        "unused-function",
+        "need-check-nil"
+    ]
+}
