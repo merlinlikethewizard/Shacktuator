@@ -1,4 +1,14 @@
--- This code © 2023 by Merlin is licensed under CC BY-SA 4.0.
+--[[
+    Copyright (c) 2023 MerlinLikeTheWizard. All rights reserved.
+
+    This work is licensed under the terms of the MIT license.  
+    For a copy, see <https://opensource.org/licenses/MIT>.
+
+    ----------
+
+    A group of common actions for use in a virety of programs.
+    Logs all movement in merlib.state.pos and merlib.state.rot, after getting GPS coords in calibrate()
+]]
 
 -- Start module environment ----------+
 local mo = require "merlib.modules" --|

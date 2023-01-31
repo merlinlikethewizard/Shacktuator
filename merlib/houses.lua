@@ -1,4 +1,13 @@
--- This code © 2023 by Merlin is licensed under CC BY-SA 4.0.
+--[[
+    Copyright (c) 2023 MerlinLikeTheWizard. All rights reserved.
+
+    This work is licensed under the terms of the MIT license.  
+    For a copy, see <https://opensource.org/licenses/MIT>.
+
+    ----------
+
+    Creates randomly generated houses that get turned into blueprints with merlib.blueprints.
+]]
 
 -- Start module environment ----------+
 local mo = require "merlib.modules" --|
@@ -33,6 +42,7 @@ options = {
     WINDOW_HEIGHT = 2,
 
     WINDOW_CHANCE = 0.2,
+    FLAT_TOP_CHANCE = 0.1
 }
 
 -- -- Variant properties (uncomment)
@@ -47,12 +57,8 @@ options = {
 --     DOOR_HEIGHT = 1,
 --     WINDOW_HEIGHT = 2,
 --     WINDOW_CHANCE = 0.2,
+--     FLAT_TOP_CHANCE = 0.1
 -- }
-
-------------------------------------
-
--- -- As yet unused:
--- FLAT_TOP_CHANCE = 0.1
 
 ------------------------------------
 
@@ -64,7 +70,7 @@ local TYPE_SLOTS = {
     "wall",
     "glass",
     "corner",
-    "scaffold",
+    -- "scaffold",
 }
 
 local COMPONENT = 1
@@ -250,14 +256,18 @@ local function attemptAddComponent(layout, roof_heights, roof_elements, first, m
     local height = math.random(options.MIN_WALL_HEIGHT, options.MAX_WALL_HEIGHT)
 
     -- Add roof
+    local flat_portion = 0
+    if math.random() < options.FLAT_TOP_CHANCE then
+        flat_portion = math.min(width, length) / 2 - 1
+    end
     local mid, element
     if width > length then
         mid = (min_y + max_y) / 2
         for y = min_y, max_y do
-            if y < mid then
+            if y < mid - flat_portion then
                 element = DOWN
                 height = height + 1
-            elseif y > mid then
+            elseif y > mid + flat_portion then
                 element = UP
             else
                 element = FLAT
@@ -268,17 +278,17 @@ local function attemptAddComponent(layout, roof_heights, roof_elements, first, m
                     roof_elements[flat(x, y)] = element
                 end
             end
-            if y > mid then
+            if y > mid + flat_portion then
                 height = height - 1
             end
         end
     else
         mid = (min_x + max_x) / 2
         for x = min_x, max_x do
-            if x < mid then
+            if x < mid - flat_portion then
                 element = RIGHT
                 height = height + 1
-            elseif x > mid then
+            elseif x > mid + flat_portion then
                 element = LEFT
             else
                 element = FLAT
@@ -289,7 +299,7 @@ local function attemptAddComponent(layout, roof_heights, roof_elements, first, m
                     roof_elements[flat(x, y)] = element
                 end
             end
-            if x > mid then
+            if x > mid + flat_portion then
                 height = height - 1
             end
         end
@@ -459,7 +469,7 @@ function makeBlueprint(house, block_types, foundation_height)
 
         -- Scaffold
         if wall_bottom == y and type ~= FLAT then
-            blueprint:addBlock(block_types.scaffold, Vector3.new(x, y-1, z))
+            blueprint:addBlock(block_types.wall, Vector3.new(x, y-1, z)) -- used to be scaffold
         end
 
         vector.y = vector.y - 1
@@ -472,7 +482,7 @@ function makeBlueprint(house, block_types, foundation_height)
                 -- Doors
                 elseif (vector.y == options.DOOR_HEIGHT or vector.y == options.DOOR_HEIGHT + 1) and bit32.band(house.layout[coords], DOOR) ~= 0 then
                     if vector.y == options.DOOR_HEIGHT + 1 then
-                        blueprint:addBlock(block_types.scaffold, vector)
+                        blueprint:addBlock(block_types.wall, vector) -- used to be scaffold
                     end
 
                 -- Corners

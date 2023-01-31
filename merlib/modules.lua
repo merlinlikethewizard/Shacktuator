@@ -1,24 +1,29 @@
--- This code © 2023 by Merlin is licensed under CC BY-SA 4.0.
-
 --[[
+    Copyright (c) 2023 MerlinLikeTheWizard. All rights reserved.
+
+    This work is licensed under the terms of the MIT license.  
+    For a copy, see <https://opensource.org/licenses/MIT>.
+
+    ----------
+
 	This module is meant to make the writing and importing of modules much easier
 	by removing the need to return a table of functions at the end of each module.
 	Instead, a table is automatically returned with all of the global functions.
 
-Instructions, paste this at the top of your module:
+	Instructions, paste this at the top of your module:
 
 -- Start module environment ----------+
 local mo = require "merlib.modules" --|
 mo.startModule(_ENV)                --|
 --------------------------------------+
 
-And this at the bottom:
+	And this at the bottom:
 
 -- End module environment -------+
 return mo.endModule(getfenv()) --|
 ---------------------------------+
 
-And now you're ready for an easy import!
+	And now you're ready for an easy import!
 
 ]]
 

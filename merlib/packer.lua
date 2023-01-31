@@ -1,6 +1,11 @@
--- This code © 2023 by Merlin is licensed under CC BY-SA 4.0.
-
 --[[
+    Copyright (c) 2023 MerlinLikeTheWizard. All rights reserved.
+
+    This work is licensed under the terms of the MIT license.  
+    For a copy, see <https://opensource.org/licenses/MIT>.
+
+    ----------
+
     Takes every file (recursively) from the <input_dirpath> and packs them into a single
     deployable file, <output_filepath>. This is the most meta program I have ever written.
 ]]

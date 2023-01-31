@@ -1,4 +1,14 @@
--- This code © 2023 by Merlin is licensed under CC BY-SA 4.0.
+--[[
+    Copyright (c) 2023 MerlinLikeTheWizard. All rights reserved.
+
+    This work is licensed under the terms of the MIT license.  
+    For a copy, see <https://opensource.org/licenses/MIT>.
+
+    ----------
+
+    Works with merlib.actions to remember the state of the turtle's position
+    (and possibly other things in the future).
+]]
 
 -- Start module environment --------------+
 local the_env = {}                      --|

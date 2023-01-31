@@ -1,4 +1,13 @@
--- This code © 2023 by Merlin is licensed under CC BY-SA 4.0.
+--[[
+    Copyright (c) 2023 MerlinLikeTheWizard. All rights reserved.
+
+    This work is licensed under the terms of the MIT license.  
+    For a copy, see <https://opensource.org/licenses/MIT>.
+
+    ----------
+
+    Have turtles build their own cute unique little and big houses with Shacktuator!!!
+]]
 
 local ba = require "merlib.basics"
 local houses = require "merlib.houses"
@@ -156,11 +165,8 @@ function userGenerate()
                     term.setTextColor(colors.white)
                     return house
                 elseif arg2 == OPTIONS_X and arg3 == screen_height then
-                    local seed = optionsWindow(win, house.seed)
-                    if seed ~= house.seed then
-                        house = houses.randomHouse(seed)
-                        break
-                    end
+                    house = houses.randomHouse(optionsWindow(win, house.seed))
+                    break
                 end
             end
         end

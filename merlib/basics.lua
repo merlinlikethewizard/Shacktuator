@@ -1,4 +1,13 @@
--- This code © 2023 by Merlin is licensed under CC BY-SA 4.0.
+--[[
+    Copyright (c) 2023 MerlinLikeTheWizard. All rights reserved.
+
+    This work is licensed under the terms of the MIT license.  
+    For a copy, see <https://opensource.org/licenses/MIT>.
+
+    ----------
+
+    A few basic functions.
+]]
 
 -- Start module environment ----------+
 local mo = require "merlib.modules" --|

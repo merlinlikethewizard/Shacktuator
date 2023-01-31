@@ -1,18 +1,31 @@
--- This code © 2023 by Merlin is licensed under CC BY-SA 4.0.
+--[[
+    Copyright (c) 2023 MerlinLikeTheWizard. All rights reserved.
 
--- Make merlib library globally available (not necessary but useful)
+    This work is licensed under the terms of the MIT license.  
+    For a copy, see <https://opensource.org/licenses/MIT>.
+
+    ----------
+
+    A few things that run on startup to make the turtle happy.
+    Not necessary to have things work, but can be useful.
+]]
+
+-- Make merlib library globally available as an API
 _G.merlib = {}
-_G.merlib.actions = require "merlib.actions"
-_G.merlib.algs = require "merlib.algs"
-_G.merlib.basics = require "merlib.basics"
-_G.merlib.blueprints = require "merlib.blueprints"
-_G.merlib.houses = require "merlib.houses"
-_G.merlib.mining = require "merlib.mining"
-_G.merlib.namer = require "merlib.namer"
-_G.merlib.packer = require "merlib.packer"
-_G.merlib.paths = require "merlib.paths"
-_G.merlib.state = require "merlib.state"
-_G.merlib.vectors = require "merlib.vectors"
+merlib.actions = require "merlib.actions"
+merlib.algs = require "merlib.algs"
+merlib.basics = require "merlib.basics"
+merlib.blueprints = require "merlib.blueprints"
+merlib.houses = require "merlib.houses"
+merlib.mining = require "merlib.mining"
+merlib.namer = require "merlib.namer"
+merlib.packer = require "merlib.packer"
+merlib.paths = require "merlib.paths"
+merlib.state = require "merlib.state"
+merlib.vectors = require "merlib.vectors"
+
+-- Name the turtle
+merlib.namer.nameTurtle()
 
 -- Calibrate turtle if GPS is available
 merlib.actions.calibrate()
