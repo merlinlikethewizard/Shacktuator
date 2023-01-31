@@ -19,16 +19,6 @@ pprint = pretty.pretty_print
 
 inf = 1e309
 
-function flat(x, y, z)
-    return string.format('%d,%d,%d', (x or 1), (y or 1), (z or 1))
-end
-
-function unflat(s)
-    ---@diagnostic disable-next-line: deprecated
-    local x, y, z = table.unpack(splitString(s, ','))
-    return tonumber(x), tonumber(y), tonumber(z)
-end
-
 function cloneTable(t)
     new_table = {}
     for key, val in pairs(t) do
