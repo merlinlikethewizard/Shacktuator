@@ -42,7 +42,7 @@ options = {
     WINDOW_HEIGHT = 2,
 
     WINDOW_CHANCE = 0.2,
-    FLAT_TOP_CHANCE = 0.1
+    FLAT_TOP_CHANCE = 0.4
 }
 
 -- -- Variant properties (uncomment)
