@@ -42,7 +42,7 @@ options = {
     WINDOW_HEIGHT = 2,
 
     WINDOW_CHANCE = 0.2,
-    FLAT_TOP_CHANCE = 0.4
+    FLAT_TOP_CHANCE = 0.6
 }
 
 -- -- Variant properties (uncomment)
@@ -258,7 +258,7 @@ local function attemptAddComponent(layout, roof_heights, roof_elements, first, m
     -- Add roof
     local flat_portion = 0
     if math.random() < options.FLAT_TOP_CHANCE then
-        flat_portion = math.min(width, length) / 2 - 1
+        flat_portion = math.random(0, math.min(width, length) / 2 - 1)
     end
     local mid, element
     if width > length then
