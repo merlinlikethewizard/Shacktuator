@@ -220,6 +220,25 @@ function selectItem(item_name)
     return false
 end
 
+function manualRefuel()
+    turtle.select(1)
+    print("Please refuel turtle by placing fuel in slot 1.")
+    print("Press F to consume. Press C when complete.")
+    while true do
+        term.setCursorPos(1, ({term.getCursorPos()})[2])
+        term.write("Current fuel level: " .. turtle.getFuelLevel() .. "                   ")
+        local event, arg1, arg2, arg3 = os.pullEvent()
+        if event == "key" then
+            if arg1 == keys.f then
+                turtle.refuel()
+            elseif arg1 == keys.c then
+                sleep(0)
+                return
+            end
+        end
+    end
+end
+
 
 -- End module environment -------+
 return mo.endModule(getfenv()) --|

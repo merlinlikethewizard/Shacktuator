@@ -12,43 +12,42 @@ local st = require "merlib.state"
 local algs = require "merlib.algs"
 local Blueprint = (require "merlib.blueprints").Blueprint
 
-Vector3 = ve.Vector3
-flat = ba.flat
-unflat = ba.unflat
+local Vector3 = ve.Vector3
+local flat = ba.flat
+local unflat = ba.unflat
 
 ------------------------------------
 
 -- Customizable properties
-MAX_SIZE = 11
-MAX_HEIGHT = 30
-MAX_COMPONENT_SIZE = 8
-MIN_COMPONENT_SIZE = 3
-MIN_BASE_SIZE = 5
-MAX_COMPONENT_ADD_ATTEMPTS = 10
+options = {
+    MAX_SIZE = 11,
+    MAX_COMPONENT_SIZE = 8,
+    MIN_COMPONENT_SIZE = 3,
+    MIN_BASE_SIZE = 5,
+    MAX_COMPONENT_ADD_ATTEMPTS = 10,
 
-MIN_WALL_HEIGHT = 2
-MAX_WALL_HEIGHT = 4
+    MIN_WALL_HEIGHT = 2,
+    MAX_WALL_HEIGHT = 4,
 
-DOOR_HEIGHT = 1
-WINDOW_HEIGHT = 2
+    DOOR_HEIGHT = 1,
+    WINDOW_HEIGHT = 2,
 
-WINDOW_CHANCE = 0.2
+    WINDOW_CHANCE = 0.2,
+}
 
 -- -- Variant properties (uncomment)
--- MAX_SIZE = 30
--- MAX_HEIGHT = 30
--- MAX_COMPONENT_SIZE = 15
--- MIN_COMPONENT_SIZE = 3
--- MIN_BASE_SIZE = 5
--- MAX_COMPONENT_ADD_ATTEMPTS = 50
-
--- MIN_WALL_HEIGHT = 2
--- MAX_WALL_HEIGHT = 4
-
--- DOOR_HEIGHT = 1
--- WINDOW_HEIGHT = 2
-
--- WINDOW_CHANCE = 0.2
+-- options = {
+--     MAX_SIZE = 30,
+--     MAX_COMPONENT_SIZE = 15,
+--     MIN_COMPONENT_SIZE = 3,
+--     MIN_BASE_SIZE = 5,
+--     MAX_COMPONENT_ADD_ATTEMPTS = 50,
+--     MIN_WALL_HEIGHT = 2,
+--     MAX_WALL_HEIGHT = 4,
+--     DOOR_HEIGHT = 1,
+--     WINDOW_HEIGHT = 2,
+--     WINDOW_CHANCE = 0.2,
+-- }
 
 ------------------------------------
 
@@ -57,7 +56,7 @@ WINDOW_CHANCE = 0.2
 
 ------------------------------------
 
-TYPE_SLOTS = {
+local TYPE_SLOTS = {
     "foundation",
     "floor",
     "roof_flat",
@@ -68,27 +67,27 @@ TYPE_SLOTS = {
     "scaffold",
 }
 
-COMPONENT = 1
-OVERLAP = 2
-EDGE = 4
-DOOR = 8
-WINDOW = 16
-CORNER = 32
+local COMPONENT = 1
+local OVERLAP = 2
+local EDGE = 4
+local DOOR = 8
+local WINDOW = 16
+local CORNER = 32
 
-UP = "north"
-RIGHT = "east"
-DOWN = "south"
-LEFT = "west"
-FLAT = "flat"
+local UP = "north"
+local RIGHT = "east"
+local DOWN = "south"
+local LEFT = "west"
+local FLAT = "flat"
 
-OFFSETS = {
+local OFFSETS = {
     [UP]    = { 0, -1},
     [RIGHT] = { 1,  0},
     [DOWN]  = { 0,  1},
     [LEFT]  = {-1,  0}
 }
 
-ROTATIONS = {
+local ROTATIONS = {
     [UP]    = "north",
     [RIGHT] = "east",
     [DOWN]  = "south",
@@ -97,14 +96,14 @@ ROTATIONS = {
 
 
 -- function flat(x, y, z)
---     return ((x or 1)-1) + ((y or 1)-1) * MAX_SIZE + ((z or 1)-1) * MAX_SIZE * MAX_SIZE
+--     return ((x or 1)-1) + ((y or 1)-1) * options.MAX_SIZE + ((z or 1)-1) * options.MAX_SIZE * options.MAX_SIZE
 -- end
 
 -- function unflat(n)
---     return n % MAX_SIZE + 1, math.floor((n % (MAX_SIZE * MAX_SIZE)) / MAX_SIZE) + 1,  math.floor(n / (MAX_SIZE * MAX_SIZE)) + 1
+--     return n % options.MAX_SIZE + 1, math.floor((n % (options.MAX_SIZE * options.MAX_SIZE)) / options.MAX_SIZE) + 1,  math.floor(n / (options.MAX_SIZE * options.MAX_SIZE)) + 1
 -- end
 
-function find(table, x, y, z)
+local function find(table, x, y, z)
     return table[flat(x, y, z)] or 0
 end
 
@@ -174,58 +173,12 @@ function houseToString(house)
 end
 
 
-function randomHouse(seed)
-    if seed then
-        math.randomseed(seed)
-    end
-
-    local temp_layout = {}
-    local temp_roof_heights = {}
-    local temp_roof_elements = {}
-
-    -- Add components
-    local door_x, door_y = attemptAddComponent(temp_layout, temp_roof_heights, temp_roof_elements, true, MIN_BASE_SIZE)
-    for _ = 1, math.random(MAX_COMPONENT_ADD_ATTEMPTS - 1) do
-        attemptAddComponent(temp_layout, temp_roof_heights, temp_roof_elements, false, MIN_COMPONENT_SIZE)
-    end
-
-    -- Reposition
-    local house = {}
-    house.seed = seed
-    house.layout = {}
-    house.roof_heights = {}
-    house.roof_elements = {}
-    house.min_x = ba.inf
-    house.max_x = -ba.inf
-    house.min_y = ba.inf
-    house.max_y = -ba.inf
-    for coords in pairs(temp_layout) do
-        x, y = unflat(coords)
-        x = x - door_x
-        y = y - door_y
-        house.layout[flat(x, y)] = temp_layout[coords]
-        house.roof_heights[flat(x, y)] = temp_roof_heights[coords]
-        house.roof_elements[flat(x, y)] = temp_roof_elements[coords]
-        house.min_x = math.min(house.min_x, x)
-        house.max_x = math.max(house.max_x, x)
-        house.min_y = math.min(house.min_y, y)
-        house.max_y = math.max(house.max_y, y)
-    end
-
-    -- Final touches
-    fixCorners(house.layout)
-    fixRoof(house.layout, house.roof_heights, house.roof_elements)
-
-    return house
-end
-
-
-function attemptAddComponent(layout, roof_heights, roof_elements, first, min_size)
-    local width = math.random(min_size, MAX_COMPONENT_SIZE)
-    local length = math.random(min_size, MAX_COMPONENT_SIZE)
-    local min_x = math.random(MAX_SIZE - width + 1)
-    local min_y = math.random(MAX_SIZE - length + 1)
-    if first then min_y = MAX_SIZE - length + 1 end
+local function attemptAddComponent(layout, roof_heights, roof_elements, first, min_size)
+    local width = math.random(min_size, options.MAX_COMPONENT_SIZE)
+    local length = math.random(min_size, options.MAX_COMPONENT_SIZE)
+    local min_x = math.random(options.MAX_SIZE - width + 1)
+    local min_y = math.random(options.MAX_SIZE - length + 1)
+    if first then min_y = options.MAX_SIZE - length + 1 end
     local max_x = min_x + width - 1
     local max_y = min_y + length - 1
 
@@ -273,7 +226,7 @@ function attemptAddComponent(layout, roof_heights, roof_elements, first, min_siz
                 layout[flat(x, y)] = bit32.bor(find(layout, x, y), COMPONENT)
                 if is_edge then
                     layout[flat(x, y)] = bit32.bor(find(layout, x, y), EDGE)
-                    if math.random() < WINDOW_CHANCE then
+                    if math.random() < options.WINDOW_CHANCE then
                         -- Add window
                         layout[flat(x, y)] = bit32.bor(find(layout, x, y), WINDOW)
                     end
@@ -294,7 +247,7 @@ function attemptAddComponent(layout, roof_heights, roof_elements, first, min_siz
         end
     end
 
-    local height = math.random(MIN_WALL_HEIGHT, MAX_WALL_HEIGHT)
+    local height = math.random(options.MIN_WALL_HEIGHT, options.MAX_WALL_HEIGHT)
 
     -- Add roof
     local mid, element
@@ -345,7 +298,7 @@ function attemptAddComponent(layout, roof_heights, roof_elements, first, min_siz
 end
 
 
-function fixCorners(layout)
+local function fixCorners(layout)
     for coords, type in pairs(layout) do
         -- Find all adjacend edge types
         x, y = unflat(coords)
@@ -366,7 +319,7 @@ function fixCorners(layout)
 end
 
 
-function fixRoof(layout, roof_heights, roof_elements)
+local function fixRoof(layout, roof_heights, roof_elements)
     for coords, element in pairs(roof_elements) do
         height = roof_heights[coords]
         for cardinal, offset in pairs(OFFSETS) do
@@ -409,6 +362,52 @@ function fixRoof(layout, roof_heights, roof_elements)
             end
         end
     end
+end
+
+
+function randomHouse(seed)
+    if seed then
+        math.randomseed(seed)
+    end
+
+    local temp_layout = {}
+    local temp_roof_heights = {}
+    local temp_roof_elements = {}
+
+    -- Add components
+    local door_x, door_y = attemptAddComponent(temp_layout, temp_roof_heights, temp_roof_elements, true, options.MIN_BASE_SIZE)
+    for _ = 1, math.random(options.MAX_COMPONENT_ADD_ATTEMPTS - 1) do
+        attemptAddComponent(temp_layout, temp_roof_heights, temp_roof_elements, false, options.MIN_COMPONENT_SIZE)
+    end
+
+    -- Reposition
+    local house = {}
+    house.seed = seed
+    house.layout = {}
+    house.roof_heights = {}
+    house.roof_elements = {}
+    house.min_x = ba.inf
+    house.max_x = -ba.inf
+    house.min_y = ba.inf
+    house.max_y = -ba.inf
+    for coords in pairs(temp_layout) do
+        x, y = unflat(coords)
+        x = x - door_x
+        y = y - door_y
+        house.layout[flat(x, y)] = temp_layout[coords]
+        house.roof_heights[flat(x, y)] = temp_roof_heights[coords]
+        house.roof_elements[flat(x, y)] = temp_roof_elements[coords]
+        house.min_x = math.min(house.min_x, x)
+        house.max_x = math.max(house.max_x, x)
+        house.min_y = math.min(house.min_y, y)
+        house.max_y = math.max(house.max_y, y)
+    end
+
+    -- Final touches
+    fixCorners(house.layout)
+    fixRoof(house.layout, house.roof_heights, house.roof_elements)
+
+    return house
 end
 
 
@@ -467,17 +466,17 @@ function makeBlueprint(house, block_types, foundation_height)
         while vector.y > 0 do
             if vector.y >= wall_bottom then
                 -- Windows
-                if vector.y == WINDOW_HEIGHT and bit32.band(house.layout[coords], WINDOW) ~= 0 then
+                if vector.y == options.WINDOW_HEIGHT and bit32.band(house.layout[coords], WINDOW) ~= 0 then
                     blueprint:addBlock(block_types.glass, vector)
 
                 -- Doors
-                elseif (vector.y == DOOR_HEIGHT or vector.y == DOOR_HEIGHT + 1) and bit32.band(house.layout[coords], DOOR) ~= 0 then
-                    if vector.y == DOOR_HEIGHT + 1 then
+                elseif (vector.y == options.DOOR_HEIGHT or vector.y == options.DOOR_HEIGHT + 1) and bit32.band(house.layout[coords], DOOR) ~= 0 then
+                    if vector.y == options.DOOR_HEIGHT + 1 then
                         blueprint:addBlock(block_types.scaffold, vector)
                     end
 
                 -- Corners
-                elseif vector.y == DOOR_HEIGHT + 1 and bit32.band(house.layout[coords], CORNER) ~= 0 then
+                elseif vector.y == options.DOOR_HEIGHT + 1 and bit32.band(house.layout[coords], CORNER) ~= 0 then
                     blueprint:addBlock(block_types.corner, vector)
 
                 -- Walls
@@ -503,7 +502,7 @@ function buildHouse(blueprint)
 end
 
 
-function getBlockTypes()
+function manualBlockTypes()
     term.clear()
     term.setCursorPos(1, 1)
     print()

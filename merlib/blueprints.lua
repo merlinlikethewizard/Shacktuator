@@ -137,9 +137,9 @@ function Blueprint:build(direction)
         while next(remaining_blocks) do
             route = algs.fastestRouteMultiDestUseRot(st.pos, st.rot, isBlockPosition, validFunction)
             if not route then error('No valid route found to blueprint layer ' .. block_y) end
-            if not ac.followRoute(route, true) then
-                error('Could not follow route')
-            end
+            while turtle.getFuelLevel() < #route do ac.manualRefuel() end
+            if not ac.followRoute(route, true) then error('Could not follow route') end
+
             validFunction = inLayerArea
             assert(st.pos.y == turtle_y)
 
