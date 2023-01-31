@@ -6,8 +6,8 @@
 
     ----------
 
-	The Path class is used to make a permanent easily followable path for turtles.
-	It can be cusomized to be a closed loop or open, and is used by followPath in merlib.actions
+    The Path class is used to make a permanent easily followable path for turtles.
+    It can be cusomized to be a closed loop or open, and is used by followPath in merlib.actions
 ]]
 
 -- Start module environment ----------+
@@ -21,23 +21,23 @@ Path = {}
 Path.__index = Path
 
 function Path.fromRoute(route, origin)
-	local o = {}
-	setmetatable(o, Path)
-	
-	o.route = route
-	o.steps = {}
-	local pos = origin or ve.Vector3.new()
+    local o = {}
+    setmetatable(o, Path)
+    
+    o.route = route
+    o.steps = {}
+    local pos = origin or ve.Vector3.new()
 
-	for char in route:gmatch'.' do
-		o.steps[pos:strXYZ()] = char
-		pos:increment(ve.cardinal_vectors[char])
+    for char in route:gmatch'.' do
+        o.steps[pos:strXYZ()] = char
+        pos:increment(ve.cardinal_vectors[char])
     end
 
-	return o
+    return o
 end
 
 function Path:__len()
-	return #self.route
+    return #self.route
 end
 
 -- function Path.fromNodes(nodes)
@@ -54,7 +54,7 @@ end
 
 
 function Path:next(pos)
-	return self.steps[pos:strXYZ()]
+    return self.steps[pos:strXYZ()]
 end
 
 
