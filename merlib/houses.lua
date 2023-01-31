@@ -22,8 +22,6 @@ local algs = require "merlib.algs"
 local Blueprint = (require "merlib.blueprints").Blueprint
 
 local Vector3 = ve.Vector3
-local flat = ba.flat
-local unflat = ba.unflat
 
 ------------------------------------
 
@@ -100,17 +98,8 @@ local ROTATIONS = {
     [LEFT]  = "west"
 }
 
-
--- function flat(x, y, z)
---     return ((x or 1)-1) + ((y or 1)-1) * options.MAX_SIZE + ((z or 1)-1) * options.MAX_SIZE * options.MAX_SIZE
--- end
-
--- function unflat(n)
---     return n % options.MAX_SIZE + 1, math.floor((n % (options.MAX_SIZE * options.MAX_SIZE)) / options.MAX_SIZE) + 1,  math.floor(n / (options.MAX_SIZE * options.MAX_SIZE)) + 1
--- end
-
-local function find(table, x, y, z)
-    return table[flat(x, y, z)] or 0
+local function find(table, x, y)
+    return table[ve.pack2(x, y)] or 0
 end
 
 
@@ -220,21 +209,21 @@ local function attemptAddComponent(layout, roof_heights, roof_elements, first, m
             local is_edge = x == min_x or x == max_x or y == min_y or y == max_y
             if bit32.band(find(layout, x, y), COMPONENT) ~= 0 then
                 -- Already a component here
-                layout[flat(x, y)] = bit32.bor(find(layout, x, y), OVERLAP)
+                layout[ve.pack2(x, y)] = bit32.bor(find(layout, x, y), OVERLAP)
                 if bit32.band(find(layout, x, y), EDGE) ~= 0 and not is_edge then
-                    layout[flat(x, y)] = find(layout, x, y) - EDGE
+                    layout[ve.pack2(x, y)] = find(layout, x, y) - EDGE
                     if bit32.band(find(layout, x, y), WINDOW) ~= 0 then
-                        layout[flat(x, y)] = find(layout, x, y) - WINDOW
+                        layout[ve.pack2(x, y)] = find(layout, x, y) - WINDOW
                     end
                 end
             else
                 -- Not a component here
-                layout[flat(x, y)] = bit32.bor(find(layout, x, y), COMPONENT)
+                layout[ve.pack2(x, y)] = bit32.bor(find(layout, x, y), COMPONENT)
                 if is_edge then
-                    layout[flat(x, y)] = bit32.bor(find(layout, x, y), EDGE)
+                    layout[ve.pack2(x, y)] = bit32.bor(find(layout, x, y), EDGE)
                     if math.random() < options.WINDOW_CHANCE then
                         -- Add window
-                        layout[flat(x, y)] = bit32.bor(find(layout, x, y), WINDOW)
+                        layout[ve.pack2(x, y)] = bit32.bor(find(layout, x, y), WINDOW)
                     end
                 end
             end
@@ -245,10 +234,10 @@ local function attemptAddComponent(layout, roof_heights, roof_elements, first, m
     local door_x
     if first then
         door_x = math.random(min_x + 1, max_x - 1)
-        layout[flat(door_x, max_y)] = bit32.bor(find(layout, door_x, max_y), DOOR)
+        layout[ve.pack2(door_x, max_y)] = bit32.bor(find(layout, door_x, max_y), DOOR)
         for offset = -1, 1 do
             if bit32.band(find(layout, door_x + offset, max_y), WINDOW) ~= 0 then
-                layout[flat(door_x + offset, max_y)] = find(layout, door_x + offset, max_y) - WINDOW
+                layout[ve.pack2(door_x + offset, max_y)] = find(layout, door_x + offset, max_y) - WINDOW
             end
         end
     end
@@ -274,8 +263,8 @@ local function attemptAddComponent(layout, roof_heights, roof_elements, first, m
             end
             for x = min_x, max_x do
                 if find(roof_heights, x, y) < height then
-                    roof_heights[flat(x, y)] = height
-                    roof_elements[flat(x, y)] = element
+                    roof_heights[ve.pack2(x, y)] = height
+                    roof_elements[ve.pack2(x, y)] = element
                 end
             end
             if y > mid + flat_portion then
@@ -295,8 +284,8 @@ local function attemptAddComponent(layout, roof_heights, roof_elements, first, m
             end
             for y = min_y, max_y do
                 if find(roof_heights, x, y) < height then
-                    roof_heights[flat(x, y)] = height
-                    roof_elements[flat(x, y)] = element
+                    roof_heights[ve.pack2(x, y)] = height
+                    roof_elements[ve.pack2(x, y)] = element
                 end
             end
             if x > mid + flat_portion then
@@ -311,7 +300,7 @@ end
 local function fixCorners(layout)
     for coords, type in pairs(layout) do
         -- Find all adjacend edge types
-        x, y = unflat(coords)
+        x, y = ve.unpack2(coords)
         adjacend_edges = {}
         for dir, offset in pairs(OFFSETS) do
             if bit32.band(find(layout, x + offset[1], y + offset[2]), EDGE) ~= 0 then
@@ -333,14 +322,14 @@ local function fixRoof(layout, roof_heights, roof_elements)
     for coords, element in pairs(roof_elements) do
         height = roof_heights[coords]
         for cardinal, offset in pairs(OFFSETS) do
-            local start_x, start_y = unflat(coords)
+            local start_x, start_y = ve.unpack2(coords)
             local x = start_x
             local y = start_y
             local reverse = ve.cardinal_reverse[cardinal]
             if element == reverse then
                 x = x + offset[1]
                 y = y + offset[2]
-                local new_coords = flat(x, y)
+                local new_coords = ve.pack2(x, y)
                 if roof_heights[new_coords] == height and (roof_elements[new_coords] == element or roof_elements[new_coords] == FLAT) then
                     roof_elements[coords] = FLAT
                 end
@@ -348,7 +337,7 @@ local function fixRoof(layout, roof_heights, roof_elements)
                 while true do
                     x = x + offset[1]
                     y = y + offset[2]
-                    local new_coords = flat(x, y)
+                    local new_coords = ve.pack2(x, y)
                     if not roof_elements[new_coords] then
                         break
                     elseif roof_heights[new_coords] > height then
@@ -358,7 +347,7 @@ local function fixRoof(layout, roof_heights, roof_elements)
                             break
                         elseif roof_elements[new_coords] == cardinal then
                             while not (x == start_x and y == start_y) do
-                                new_coords = flat(x, y)
+                                new_coords = ve.pack2(x, y)
                                 roof_elements[new_coords] = element
                                 roof_heights[new_coords] = height
                                 x = x - offset[1]
@@ -401,12 +390,12 @@ function randomHouse(seed)
     house.min_y = ba.inf
     house.max_y = -ba.inf
     for coords in pairs(temp_layout) do
-        x, y = unflat(coords)
+        x, y = ve.unpack2(coords)
         x = x - door_x
         y = y - door_y
-        house.layout[flat(x, y)] = temp_layout[coords]
-        house.roof_heights[flat(x, y)] = temp_roof_heights[coords]
-        house.roof_elements[flat(x, y)] = temp_roof_elements[coords]
+        house.layout[ve.pack2(x, y)] = temp_layout[coords]
+        house.roof_heights[ve.pack2(x, y)] = temp_roof_heights[coords]
+        house.roof_elements[ve.pack2(x, y)] = temp_roof_elements[coords]
         house.min_x = math.min(house.min_x, x)
         house.max_x = math.max(house.max_x, x)
         house.min_y = math.min(house.min_y, y)
@@ -427,14 +416,14 @@ function makeBlueprint(house, block_types, foundation_height)
     -- Foundation
     for y = -foundation_height, -1 do
         for coords, _ in pairs(house.layout) do
-            local x, z = unflat(coords)
+            local x, z = ve.unpack2(coords)
             blueprint:addBlock(block_types.foundation, Vector3.new(x, y, z))
         end
     end
 
     -- Floor
     for coords, type in pairs(house.layout) do
-        local x, z = unflat(coords)
+        local x, z = ve.unpack2(coords)
         if bit32.band(type, EDGE) ~= 0 then
             blueprint:addBlock(block_types.foundation, Vector3.new(x, 0, z))
         else
@@ -444,7 +433,7 @@ function makeBlueprint(house, block_types, foundation_height)
 
     -- Roof
     for coords, type in pairs(house.roof_elements) do
-        local x, z = unflat(coords)
+        local x, z = ve.unpack2(coords)
         local y = house.roof_heights[coords]
         local vector = Vector3.new(x, y, z)
         if type == FLAT then
@@ -461,7 +450,7 @@ function makeBlueprint(house, block_types, foundation_height)
         for _, offset in pairs(OFFSETS) do
             local adj_x = x + offset[1]
             local adj_z = z + offset[2]
-            local adj_height = house.roof_heights[flat(adj_x, adj_z)]
+            local adj_height = house.roof_heights[ve.pack2(adj_x, adj_z)]
             if adj_height then
                 wall_bottom = math.min(wall_bottom, adj_height)
             end

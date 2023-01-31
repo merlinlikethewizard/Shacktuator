@@ -99,8 +99,36 @@ function optionsWindow(win, seed)
     end
 end
 
+function writeLog(house)
+    local log = {seed = house.seed}
+    for k, v in pairs(houses.options) do
+        log[k] = v
+    end
+    file = fs.open("house_log.json", 'w')
+    file.write(textutils.serializeJSON(log))
+    file.close()
+end
+
+function readLog()
+    local seed
+    if fs.exists("house_log.json") then
+        local file = fs.open("house_log.json", 'r')
+        local json = file.readAll()
+        local house_log = textutils.unserializeJSON(json)
+        for k, v in pairs(house_log) do
+            if k == "seed" then
+                seed = v
+            else
+                houses.options[k] = v
+            end
+        end
+    end
+    return seed
+end
+
 function userGenerate()
-    local house = houses.randomHouse(math.random(100000))
+    local logged_seed = readLog()
+    local house = houses.randomHouse(logged_seed or math.random(100000))
     while true do
         local map, map_width, map_height = stringTo2DTable(houses.houseToString(house))
         local x_offset = 0
@@ -163,6 +191,7 @@ function userGenerate()
                 elseif arg2 >= SELECT_X and arg2 < SELECT_X + 8 and arg3 == screen_height then
                     term.setBackgroundColor(colors.black)
                     term.setTextColor(colors.white)
+                    writeLog(house)
                     return house
                 elseif arg2 == OPTIONS_X and arg3 == screen_height then
                     house = houses.randomHouse(optionsWindow(win, house.seed))
