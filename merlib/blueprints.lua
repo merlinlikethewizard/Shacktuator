@@ -126,12 +126,17 @@ function Blueprint:build(direction)
         return pos.y == turtle_y and inTotalArea(pos)
     end
 
+    function inLayer(pos)
+        return pos.y == turtle_y
+    end
+
     function isBlockPosition(pos, rot)
         local rotation = self.rotations[(pos - turtle_offset):strXYZ()]
         if rotation and rotation ~= rot then return false end
         return remaining_blocks[ve.pack2(pos.x, pos.z)] and pos.y == turtle_y
     end
 
+    validFunction = inTotalArea
     while layer_y >= self.min.y and layer_y <= self.max.y do
         layer = self.layers[layer_y]
         block_y = layer_y
@@ -142,10 +147,12 @@ function Blueprint:build(direction)
             remaining_blocks[xz_str] = true
         end
 
-        validFunction = inTotalArea
         while next(remaining_blocks) do
             route = algs.fastestRouteMultiDestUseRot(st.pos, st.rot, isBlockPosition, validFunction)
-            if not route then error('No valid route found to blueprint layer ' .. block_y) end
+            if not route then
+                route = algs.fastestRouteMultiDestUseRot(st.pos, st.rot, isBlockPosition, inLayer) -- Go off the map
+                if not route then error('No valid route found to blueprint layer ' .. block_y) end
+            end
             while turtle.getFuelLevel() < #route do ac.manualRefuel() end
             if not ac.followRoute(route, true) then error('Could not follow route') end
 

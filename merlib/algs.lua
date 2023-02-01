@@ -352,6 +352,7 @@ function fastestRouteUseRot(start_pos, start_rot, end_pos, end_rot, validFunctio
     end
 end
 
+-- Large test for the fastest route function (currently too slow)
 -- test_func = function (pos) return (pos.y ~= 1 or (pos.x == 23 and pos.z == 56)) end
 -- r = fastest_route({x = 0, y = 0, z = 0}, {x = 55, y = 55, z = 55}, test_func)
 

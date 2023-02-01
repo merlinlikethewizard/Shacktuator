@@ -9,7 +9,7 @@
     Have turtles build their own cute unique little and big houses with Shacktuator!!!
 ]]
 
-local ba = require "merlib.basics"
+local ve = require "merlib.vectors"
 local houses = require "merlib.houses"
 
 local MAP_VIEW_MARGIN = 2
@@ -29,7 +29,7 @@ function stringTo2DTable(map_string)
             width = math.max(width, x - 1)
             x = 1
         else
-            map[ba.flat(x, y)] = char
+            map[ve.pack2(x, y)] = char
             x = x + 1
         end
     end
@@ -145,11 +145,9 @@ function userGenerate()
             win.clear()
             win.setCursorPos(1, 1)
             for y = 1, screen_height - 1 do
-                -- if y ~= 1 then s = s .. "\n" end
                 for x = 1, screen_width do
-                    -- s = s .. (map[ba.flat(x + x_offset, y + y_offset)] or ' ')
                     win.setCursorPos(x, y)
-                    win.write(map[ba.flat(x + x_offset, y + y_offset)] or ' ')
+                    win.write(map[ve.pack2(x + x_offset, y + y_offset)] or ' ')
                 end
             end
             win.setCursorPos(1, screen_height)
@@ -172,6 +170,8 @@ function userGenerate()
             win.setBackgroundColor(colors.black)
             win.setVisible(true)
             win.setVisible(false)
+            term.setBackgroundColor(colors.black)
+            term.setTextColor(colors.white)
 
             local event, arg1, arg2, arg3 = os.pullEvent()
             if event == "key" then
@@ -183,14 +183,15 @@ function userGenerate()
                     x_offset = x_offset + 1
                 elseif arg1 == keys.left then
                     x_offset = x_offset - 1
+                elseif arg1 == keys.enter then
+                    writeLog(house)
+                    return house
                 end
             elseif event == "mouse_click" then
                 if arg2 >= RANDOMIZE_X and arg2 < RANDOMIZE_X + 11 and arg3 == screen_height then
                     house = houses.randomHouse(math.random(100000))
                     break
                 elseif arg2 >= SELECT_X and arg2 < SELECT_X + 8 and arg3 == screen_height then
-                    term.setBackgroundColor(colors.black)
-                    term.setTextColor(colors.white)
                     writeLog(house)
                     return house
                 elseif arg2 == OPTIONS_X and arg3 == screen_height then
@@ -205,7 +206,7 @@ end
 function main()
     local house = userGenerate()
     local block_types = houses.manualBlockTypes()
-    local blueprint = houses.makeBlueprint(house, block_types, 0)
+    local blueprint = houses.makeBlueprint(house, block_types, 0) -- integer arg here determines depth of house foundation
     houses.buildHouse(blueprint)
     print("Completed house with seed: " .. house.seed)
 end

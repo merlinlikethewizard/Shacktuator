@@ -29,9 +29,9 @@ dig_raw = {forward = turtle.dig, up = turtle.digUp, down = turtle.digDown}
 attack_raw = {forward = turtle.attack, up = turtle.attackUp, down = turtle.attackDown}
 
 local function logMovement(direction)
-    if not st.calibrated then
-        print("WARNING, turtle movement while uncalibrated!")
-    end
+    -- if not st.calibrated then
+    --     print("WARNING, turtle movement while uncalibrated!")
+    -- end
     if direction == 'up' then
         st.pos.y = st.pos.y + 1
     elseif direction == 'down' then
