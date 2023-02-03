@@ -470,9 +470,9 @@ function makeBlueprint(house, block_types, foundation_height)
 
                 -- Doors
                 elseif (vector.y == options.DOOR_HEIGHT or vector.y == options.DOOR_HEIGHT + 1) and bit32.band(house.layout[coords], DOOR) ~= 0 then
-                    if vector.y == options.DOOR_HEIGHT + 1 then
-                        blueprint:addBlock(block_types.wall, vector) -- used to be scaffold
-                    end
+                    -- if vector.y == options.DOOR_HEIGHT + 1 then
+                    --     blueprint:addBlock(block_types.wall, vector) -- used to be scaffold
+                    -- end
 
                 -- Corners
                 elseif vector.y == options.DOOR_HEIGHT + 1 and bit32.band(house.layout[coords], CORNER) ~= 0 then
