@@ -330,7 +330,9 @@ local function fixRoof(layout, roof_heights, roof_elements)
                 x = x + offset[1]
                 y = y + offset[2]
                 local new_coords = ve.pack2(x, y)
-                if roof_heights[new_coords] == height and (roof_elements[new_coords] == element or roof_elements[new_coords] == FLAT) then
+                if      (roof_heights[new_coords] and roof_heights[new_coords] > height) or
+                        (roof_heights[new_coords] == height and (
+                            roof_elements[new_coords] == element or roof_elements[new_coords] == FLAT) ) then
                     roof_elements[coords] = FLAT
                 end
             elseif element ~= cardinal then
@@ -501,19 +503,22 @@ function buildHouse(blueprint)
 end
 
 
-function manualBlockTypes()
+function manualBlockTypes(skip_user)
     term.clear()
     term.setCursorPos(1, 1)
     print()
+    local all_set = true
     while true do
-        print("Please enter items:")
-        for slot, type in pairs(TYPE_SLOTS) do
-            print(string.format("  SLOT %d: %s", slot, type))
+        if not (all_set and skip_user) then
+            print("Please enter items:")
+            for slot, type in pairs(TYPE_SLOTS) do
+                print(string.format("  SLOT %d: %s", slot, type))
+            end
+            print("<ENTER to continue>")
+            read()
         end
-        print("<ENTER to continue>")
-        read()
 
-        local all_set = true
+        all_set = true
         local block_types = {}
         for slot, type in pairs(TYPE_SLOTS) do
             local item = turtle.getItemDetail(slot)

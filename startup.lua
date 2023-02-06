@@ -29,3 +29,6 @@ merlib.namer.nameTurtle()
 
 -- Calibrate turtle if GPS is available
 merlib.actions.calibrate()
+
+-- Make house instantly on startup (uncomment)
+-- shell.run("insta_house")

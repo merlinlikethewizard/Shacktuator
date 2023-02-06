@@ -9,6 +9,7 @@
     Have turtles build their own cute unique little and big houses with Shacktuator!!!
 ]]
 
+local ba = require "merlib.basics"
 local ve = require "merlib.vectors"
 local houses = require "merlib.houses"
 
@@ -189,7 +190,7 @@ function userGenerate()
                 end
             elseif event == "mouse_click" then
                 if arg2 >= RANDOMIZE_X and arg2 < RANDOMIZE_X + 11 and arg3 == screen_height then
-                    house = houses.randomHouse(math.random(100000))
+                    house = houses.randomHouse(ba.random(100000))
                     break
                 elseif arg2 >= SELECT_X and arg2 < SELECT_X + 8 and arg3 == screen_height then
                     writeLog(house)
