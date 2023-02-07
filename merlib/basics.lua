@@ -39,6 +39,14 @@ function splitString(inputstr, sep)
     return t
 end
 
+local last_seed = math.random(10000000000)
+function random(...)
+    -- For programs that have used math.randomseed() and need some "true" randomness again
+    math.randomseed(last_seed)
+    last_seed = math.random(10000000000)
+    return math.random(...)
+end
+
 
 -- End module environment -------+
 return mo.endModule(getfenv()) --|
