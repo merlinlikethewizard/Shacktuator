@@ -31,4 +31,4 @@ merlib.namer.nameTurtle()
 merlib.actions.calibrate()
 
 -- Make house instantly on startup (uncomment)
-shell.run("instashack")
+-- shell.run("instashack")
